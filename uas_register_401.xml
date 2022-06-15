@@ -1,0 +1,54 @@
+<scenario name="Basic Sipstone UAC">
+
+  <send retrans="500">
+    <![CDATA[
+
+      REGISTER sip:[remote_ip]:[remote_port] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+      From: <sip:[service]@[remote_ip]>;tag=[pid]SIPpTag00[call_number]
+      To: <sip:[service]@[remote_ip]>
+      Call-ID: [call_id]
+      CSeq: 1 REGISTER
+      Contact: <sip:s@[local_ip]:[local_port]>
+      Max-Forwards: 70
+      Subject: Performance Test
+      Content-Type: application/sdp
+      Content-Length: [len]
+    ]]>
+  </send>
+
+  <recv response="200"
+        optional="true"
+        next="auth_done">
+  </recv>
+
+  <recv response="401"
+        auth="true">
+  </recv>
+
+  <send retrans="500">
+    <![CDATA[
+
+      REGISTER sip:[remote_ip]:[remote_port] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+      From: <sip:[service]@[remote_ip]>;tag=[pid]SIPpTag00[call_number]
+      To: <sip:[service]@[remote_ip]>
+      Call-ID: [call_id]
+      CSeq: 1 REGISTER
+      Contact: <sip:s@[local_ip]:[local_port]>
+      Max-Forwards: 70
+      [authentication username=sipp password=passsipp]
+      Subject: Performance Test
+      Content-Type: application/sdp
+      Content-Length: [len]
+    ]]>
+  </send>
+
+  <recv response="200">
+  </recv>
+
+  <label id="auth_done" />
+
+  <pause milliseconds="5000"/>
+
+</scenario>

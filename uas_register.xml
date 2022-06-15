@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE scenario SYSTEM "sipp.dtd">""
+<scenario name="pcap2sipp generated scenario">
+
+<recv request="REGISTER"><action>
+  <ereg regexp="branch=([[:alnum:]-]*)" search_in="hdr" header="Via:" assign_to="1,2" />
+</action></recv>
+
+<nop><action>
+  <assign assign_to="1" value="0" />
+</action></nop>
+
+<send>
+<![CDATA[
+
+        SIP/2.0 200 OK
+        [last_From:]
+        [last_To:];tag=[local_ip]+1+1c2b03+106
+        [last_Via:];rport=[remote_port];branch=[$2]
+        Supported: 100rel,replaces
+        Content-Length: 0
+        [last_Call-ID:]
+        [last_CSeq:]
+        [last_Contact:]
+
+]]>
+</send>
+
+</scenario>

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE scenario SYSTEM "sipp.dtd">
+
+<scenario name="Basic Sipstone UAC">
+  <send retrans="500">
+    <![CDATA[
+
+      INVITE sip:[service]@[remote_ip]:[remote_port] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+      From: sipp <sip:1111000010@[local_ip]:[local_port]>;tag=[call_number]
+      To: <sip:[service]@[remote_ip]:[remote_port]>
+      Call-ID: [call_id]
+      Max-Forwards: 70
+      CSeq: 1 INVITE
+      User-Agent: Cisco-CP8861/11.7.1
+      Contact: sip:sipp@[local_ip]:[local_port]
+      Expires: 180
+      Accept: application/sdp
+      Allow: ACK,BYE,CANCEL,INVITE,NOTIFY,OPTIONS,REFER,REGISTER,UPDATE,SUBSCRIBE,INFO
+      Supported: replaces,join,sdp-anat,norefersub,resource-priority,X-cisco-srtp-fallback,X-cisco-xsi-8.5.1
+      Allow-Events: kpml,dialog
+      Recv-Info: conference
+      Recv-Info: x-cisco-conference
+      Content-Length: [len]
+      Content-Type: application/sdp
+      Content-Disposition: session;handling=optional
+
+      v=0
+      o=Cisco-SIPUA 26891 0 IN IP[local_ip_type] [local_ip]
+      s=SIP Call
+      b=AS:4064
+      t=0 0
+      m=audio [media_port] RTP/SAVP 114 9 124 0 8 116 18 101
+      c=IN IP[media_ip_type] [media_ip]
+      b=TIAS:64000
+      a=crypto:1 AEAD_AES_256_GCM inline:4T9jQwfdhKG9qDcabVLnVTMAxPZFROsC0YXlV9LJIOezAGFeRwFHDNHyB78=
+      a=crypto:2 AEAD_AES_128_GCM inline:wo9tuUdysi9SYAL8Mc9/k31eQigTsedFvz/TrQ==
+      a=crypto:3 AES_CM_128_HMAC_SHA1_80 inline:bYYOAQUXVU3JBLOie8tHMJK6tGwujiUrHsVheaBW
+      a=crypto:4 AES_CM_128_HMAC_SHA1_32 inline:bYYOAQUXVU3JBLOie8tHMJK6tGwujiUrHsVheaBW
+      a=crypto:5 AEAD_AES_256_GCM inline:uSbnFBq/gEtIPRV7jDBTKimR1I/2yoTMuG6X9Vo2ZmNukqBj+7Icw49X00k= UNENCRYPTED_SRTCP
+      a=crypto:6 AEAD_AES_128_GCM inline:Ziz48HviVP5b/iO2CdUofIsUJiMflyDc5FBRXg== UNENCRYPTED_SRTCP
+      a=crypto:7 AES_CM_128_HMAC_SHA1_80 inline:P67PaxoV5CO25QYc/fV1cVKF3AhaOrS79h6EDRJA UNENCRYPTED_SRTCP
+      a=crypto:8 AES_CM_128_HMAC_SHA1_32 inline:P67PaxoV5CO25QYc/fV1cVKF3AhaOrS79h6EDRJA UNENCRYPTED_SRTCP
+      a=rtpmap:114 opus/48000/2
+      a=ptime:20
+      a=fmtp:114 maxplaybackrate=16000;sprop-maxcapturerate=16000;maxaveragebitrate=64000;stereo=0;sprop-stereo=0;usedtx=0
+      a=rtpmap:9 G722/8000
+      a=rtpmap:124 ISAC/16000
+      a=rtpmap:0 PCMU/8000
+      a=rtpmap:8 PCMA/8000
+      a=rtpmap:116 iLBC/8000
+      a=fmtp:116 mode=20
+      a=rtpmap:18 G729/8000
+      a=fmtp:18 annexb=no
+      a=rtpmap:101 telephone-event/8000
+      a=fmtp:101 0-15
+      a=sendrecv
+
+    ]]>
+  </send>
+
+  <recv response="100"
+        optional="true">
+  </recv>
+
+  <recv response="180" optional="true">
+  </recv>
+
+  <recv response="183" optional="true">
+  </recv>
+
+  <recv response="200" rtd="true">
+  </recv>
+
+  <send>
+    <![CDATA[
+
+      ACK sip:[service]@[remote_ip]:[remote_port] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+      From: sipp <sip:1111000010@[local_ip]:[local_port]>;tag=[call_number]
+      To: sut <sip:[service]@[remote_ip]:[remote_port]>[peer_tag_param]
+      Call-ID: [call_id]
+      CSeq: 1 ACK
+      Contact: sip:sipp@[local_ip]:[local_port]
+      Max-Forwards: 70
+      Subject: Performance Test
+      Content-Length: 0
+
+    ]]>
+  </send>
+
+ <pause milliseconds="2000"/>
+
+  <nop>
+   <action>
+     <exec play_pcap_audio="g711-30s.pcap"/>
+   </action>
+  </nop>
+
+  <pause milliseconds="60000"/>
+
+  <send retrans="500">
+    <![CDATA[
+
+      BYE sip:[service]@[remote_ip]:[remote_port] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+      From: sipp <sip:1111000010@[local_ip]:[local_port]>;tag=[call_number]
+      To: sut <sip:[service]@[remote_ip]:[remote_port]>[peer_tag_param]
+      Call-ID: [call_id]
+      CSeq: 5 BYE
+      Contact: sip:sipp@[local_ip]:[local_port]
+      Max-Forwards: 70
+      Subject: Performance Test
+      Content-Length: 0
+
+    ]]>
+  </send>
+
+  <recv response="200" crlf="true">
+  </recv>
+
+  <!-- definition of the response time repartition table (unit is ms)   -->
+  <ResponseTimeRepartition value="10, 20, 30, 40, 50, 100, 150, 200"/>
+
+  <!-- definition of the call length repartition table (unit is ms)     -->
+  <CallLengthRepartition value="10, 50, 100, 500, 1000, 5000, 10000"/>
+
+</scenario>
